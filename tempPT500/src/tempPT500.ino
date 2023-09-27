@@ -14,7 +14,7 @@ struct RtdValue
   float temperature;
   float resistance;
 };
-// Tabel RTD table for PT500 (temperature , resistance) in C++
+// Tabel RTD table for PT500 (temperature , resistance) (Kamstrup A/S)
 const RtdValue rtdTable[] = {
     {0, 500.000},
     {1, 501.954},
