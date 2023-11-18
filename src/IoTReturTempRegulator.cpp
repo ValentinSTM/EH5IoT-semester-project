@@ -18,6 +18,11 @@
 #include "DataProcessing.h"
 #include "Communication.h"
 #include "RTDTable.h"
+#include "ValveControl.h"
+
+int currentSteps = 0;                // Current step in the valve control algorithm
+const int totalStepsForOpen = 1000;  // Total number of steps to open the valve
+const int totalStepsForClose = 1000; // Total number of steps to close the valve
 
 std::deque<float> resistanceSamples; // Queue of resistance samples for moving average
 float sumOfSamples = 0;              // Sum of resistance samples for moving average
@@ -26,6 +31,12 @@ void setup()
 {
   pinMode(ANALOG_PIN, INPUT);
   Serial.begin(9600);
+  // // Setup valve control
+  // setupValveControl();
+  // // Setup PID controller
+  // myPID.SetMode(AUTOMATIC);
+  // myPID.SetSampleTime(1000);     // Setup time interval for PID controller
+  // myPID.SetOutputLimits(0, 255); // Setup output limits for PID controller
 }
 
 void loop()
@@ -48,6 +59,11 @@ void loop()
 
   // Delay for 1 hour
   delay(3600000);
+  // Example usage of valve control
+  openValve();
+  // some logic ...
+  closeValve();
+  // some logic ...
 }
 
 // Additional Notes:
