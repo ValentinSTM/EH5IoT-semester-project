@@ -42,3 +42,4 @@ The device must meet the following functional requirements:
 - Create a public GitHub account and upload relevant project files.
 - Upload hardware documentation, schematics, datasheets, and optional PCB layouts in PDF format.
 - Upload software files in raw source code format, such as .C, .CPP, .h, .py, etc.
+iOT semester project
