@@ -20,13 +20,13 @@ Og er returtemperatur fra din bolig under 30°C, får du en bonus." (www.kredslo
 Fjernvarme is a district heating system that supplies heat to multiple households from a centralized source. The return temperature refers to the temperature of the water sent back from homes to the heating plant.
 
 ### Project Implementation
-This system will be implemented using Particle Argon boards, leveraging IoT technology to gather data from weather forecasts.
+This system will be implemented using Particle Photon2 boards, leveraging IoT technology to gather data from weather forecasts.
 
 ## Technologies
 The following technologies are used in this project:
-- Particle Argon for data acquisition and actuator control
+- Particle Photon2 for data acquisition and actuator control
 - Temperature Sensor: PT500 Kamstrup
-- Actuator: 24V Electric Valve
+- Actuator: 24V Electric Valve M3P 46825-30
 - IoT: Webhooks for weather forecast data
 
 ## Requirements
