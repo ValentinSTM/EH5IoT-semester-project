@@ -20,6 +20,7 @@
 #include "RTDTable.h"
 #include "ValveControl.h"
 #include "PIDController.h"
+#include "ValvePIDController.h"
 
 PIDController pidController(Kp, Ki, Kd); // Global scope
 
@@ -65,16 +66,7 @@ void loop()
   double valveOutput = pidController.compute(); // Compute PID output
 
   // Control valve with PID output
-  controlValveWithPID(valveOutput); // Control valve with PID output
-
-  if (pidController.getOutput() > threshold)
-  {              // 'threshold' trebuie definit
-    openValve(); // Deschide valva pentru a crește temperatura la valoarea setată setpoint
-  }
-  else
-  {
-    closeValve(); // Închide valva pentru a scădea temperatura la valoarea setată setpoint
-  }
+  controlValveWithPID(valveOutput, currentTemperature);
 
   // Publish the data
   // publishTemperature(temperature); // oprita pentru a nu publica in cloud pana la finalizarea proiectului
