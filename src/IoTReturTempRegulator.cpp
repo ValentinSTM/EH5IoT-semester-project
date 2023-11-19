@@ -19,6 +19,9 @@
 #include "Communication.h"
 #include "RTDTable.h"
 #include "ValveControl.h"
+#include "PIDController.h"
+
+PIDController pidController(Kp, Ki, Kd); // Global scope
 
 int currentSteps = 0;                // Current step in the valve control algorithm
 const int totalStepsForOpen = 1000;  // Total number of steps to open the valve
@@ -32,11 +35,13 @@ void setup()
   pinMode(ANALOG_PIN, INPUT);
   Serial.begin(9600);
   // // Setup valve control
-   setupValveControl();
-  // // Setup PID controller
-   myPID.SetMode(AUTOMATIC);
-   myPID.SetSampleTime(1000);     // Setup time interval for PID controller
-   myPID.SetOutputLimits(0, 255); // Setup output limits for PID controller
+  setupValveControl();
+  //   // // Setup PID controller
+  pidController.setSetpoint(30.0); // Setpoint 30°C
+  pidController.begin();           // Initialisering PIDController
+
+  // Setup Particle Cloud communication
+  publishTemperature(); // Publish the temperature to the Particle Cloud
 }
 
 void loop()
@@ -51,21 +56,31 @@ void loop()
   float movingAverage = calculateMovingAverage(resistanceSamples, sumOfSamples);
   float temperature = interpolateTemperature(movingAverage);
 
-  // Publish the data
-  publishTemperature(temperature);
-
   // Print the data to the Serial monitor for debugging
   Serial.printlnf("Resistance: %f Ohm, Temperature: %f C", movingAverage, temperature);
 
-  // Delay for 1 hour
-  delay(3600000);
-  // Example usage of valve control
-  openValve();
-  // some logic ...
-  closeValve();
-  // some logic ...
-}
+  // PID controller
+  double currentTemperature = temperature;      /* read from PT500 */
+  pidController.setInput(currentTemperature);   // Actual input from PT500
+  double valveOutput = pidController.compute(); // Compute PID output
 
+  // Control valve with PID output
+  controlValveWithPID(valveOutput); // Control valve with PID output
+
+  if (pidController.getOutput() > threshold)
+  {              // 'threshold' trebuie definit
+    openValve(); // Deschide valva pentru a crește temperatura la valoarea setată setpoint
+  }
+  else
+  {
+    closeValve(); // Închide valva pentru a scădea temperatura la valoarea setată setpoint
+  }
+
+  // Publish the data
+  // publishTemperature(temperature); // oprita pentru a nu publica in cloud pana la finalizarea proiectului
+
+  delay(1000);
+}
 // Additional Notes:
 // - The SERIAL_BUFFER_SIZE might need to be adjusted based on the requirements of your application.
 // - Make sure to include your RTDTable and PT500Sensor libraries in the src/ directory.

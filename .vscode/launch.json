@@ -83,8 +83,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Particle_workspace/IoTReturTempRegulator",
-      "program": "c:/Particle_workspace/IoTReturTempRegulator/build/Debug/outDebug",
+      "cwd": "c:/Particle_iOT/EH5IoT-semester-project/src",
+      "program": "c:/Particle_iOT/EH5IoT-semester-project/src/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
