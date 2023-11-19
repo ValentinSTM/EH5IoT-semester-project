@@ -8,5 +8,6 @@ void closeValve();
 void manualValveSetting();
 void calibrateValve();
 void controlValveWithPID(double pidOutput);
+void initializeValvePosition();
 
 #endif
