@@ -38,14 +38,24 @@ void calibrateValve() {
     openValve();
     fullOpenTime = millis() - startTime;
 }
+void initializeValvePosition() {
+    // Inițializează valva în poziție deschisă
+    openValve();
+}
 
 void controlValveWithPID(double pidOutput) {
     // Assuming pidOutput is between 0 (fully closed) and 100 (fully open)
     unsigned long targetTime = (fullOpenTime * pidOutput) / 100;
-    
-    closeValve(); // Start from a known position
-    digitalWrite(pinValveOpen, HIGH);
-    digitalWrite(pinValveClose, LOW);
-    delay(targetTime); // Open the valve for a time proportional to pidOutput
-    digitalWrite(pinValveOpen, LOW); // Stop the valve
+
+    // Start with the valve in the open position
+    openValve(); 
+
+    // If the target position is less open than the current fully open position,
+    // close the valve for the necessary time to reach the desired position.
+    if (targetTime < fullOpenTime) {
+        digitalWrite(pinValveClose, HIGH);
+        digitalWrite(pinValveOpen, LOW);
+        delay(fullOpenTime - targetTime); // Close the valve to reach the target position
+        digitalWrite(pinValveClose, LOW); // Stop the valve
+    }
 }
