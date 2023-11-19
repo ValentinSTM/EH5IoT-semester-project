@@ -22,6 +22,11 @@
 #include "PIDController.h"
 #include "ValvePIDController.h"
 
+// Define PID constants
+const double Kp = 1.0;  // Proportional constant (adjust current error)
+const double Ki = 0.1;  // Integral constant ( adjust past error)
+const double Kd = 0.01; // Derivative constant (adjust future error)
+
 PIDController pidController(Kp, Ki, Kd); // Global scope
 
 int currentSteps = 0;                // Current step in the valve control algorithm
