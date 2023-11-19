@@ -32,11 +32,11 @@ void setup()
   pinMode(ANALOG_PIN, INPUT);
   Serial.begin(9600);
   // // Setup valve control
-  // setupValveControl();
+   setupValveControl();
   // // Setup PID controller
-  // myPID.SetMode(AUTOMATIC);
-  // myPID.SetSampleTime(1000);     // Setup time interval for PID controller
-  // myPID.SetOutputLimits(0, 255); // Setup output limits for PID controller
+   myPID.SetMode(AUTOMATIC);
+   myPID.SetSampleTime(1000);     // Setup time interval for PID controller
+   myPID.SetOutputLimits(0, 255); // Setup output limits for PID controller
 }
 
 void loop()
