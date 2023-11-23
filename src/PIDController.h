@@ -4,24 +4,24 @@
 
 // Include the Particle library
 #include <Particle.h>
-#include "lib/pid/src/pid.h"
+#include "C:/Particle_iOT/EH5IoT-semester-project/lib/pid/src/pid.h" // Include the PID library
 
-class PIDController
+class PIDController // Create a PIDController class
 {
-public:
-    PIDController(double Kp, double Ki, double Kd);
-    void begin();
-    void setSetpoint(double setpoint);
-    void setInput(double input);
-    double compute();
-    double getOutput();
+public:                                             // Public functions and variables
+    PIDController(double Kp, double Ki, double Kd); // Constructor for the PIDController class with the PID constants as arguments
+    void begin();                                   // Start PID control and set mode to AUTOMATIC (PID::AUTOMATIC)
+    void setSetpoint(double setpoint);              // Set the setpoint for the PID controller to compute the output based on the input and setpoint values
+    void setInput(double input);                    // Set the input for the PID controller to compute the output based on the input and setpoint values
+    double compute();                               // Compute the PID output based on the input and setpoint values
+    double getOutput();                             // Get the PID output (valve output)
 
-private:
-    double setpoint;
-    double input;
-    double output;
-    double Kp, Ki, Kd;
-    PID pid; // Define the identifier 'PID'
+private:               // Private functions and variables
+    double setpoint;   // Define the identifier 'setpoint'
+    double input;      // Define the identifier 'input'
+    double output;     // Define the identifier 'output'
+    double Kp, Ki, Kd; // Define the identifiers 'Kp', 'Ki' and 'Kd'
+    PID pid;           // Define the identifier 'PID' from the PID library
 };
 
 #endif

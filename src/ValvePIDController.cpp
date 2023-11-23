@@ -1,40 +1,62 @@
+// ValvePIDController.cpp
+
 #include "ValvePIDController.h"
 #include "ValveControl.h"
-#include <cmath>      // Pentru fabs()
-#include "Particle.h" // În cazul în care sunt necesare alte biblioteci specifice platformei sau proiectului
+#include <cmath> // For the fabs() function
+#include "Particle.h"
+#include "application.h"
 
-const double TemperatureChangeTrigger = 2.5;      // Definiți X ca schimbarea de temperatură pentru a declanșa ajustarea valvei
-const double AllowedTemperatureFluctuation = 1.5; // Fluctuații de temperatură admise în grade Celsius
-double previousTemperature = -1;                  // Inițializat la o valoare imposibilă pentru prima citire
+extern double setpoint; // Setpoint temperature, defined elsewhere
+// const double threshold = 5.0; // Threshold for additional control
+
+const double TemperatureChangeTrigger = 1.0;
+const double AllowedTemperatureFluctuation = 0.5;
+double previousTemperature = -1.0;
 
 void controlValveWithPID(double valveOutput, double currentTemperature)
 {
     if (previousTemperature < 0)
     {
-        previousTemperature = currentTemperature; // Setează prima temperatură citită
+        previousTemperature = currentTemperature;
     }
 
     double temperatureDifference = fabs(currentTemperature - previousTemperature);
 
-    // Decide dacă să ajusteze valva bazat pe schimbarea temperaturii
     if (temperatureDifference >= TemperatureChangeTrigger ||
         temperatureDifference > AllowedTemperatureFluctuation)
     {
 
-        // Logică de ajustare a valvei bazată pe valveOutput și specificațiile valvei
-        // De exemplu, dacă valveOutput este mare, poate deschideți mai mult valva, și invers
-        if (valveOutput > threshold)
+        // Direct temperature error control
+        double temperatureError = setpoint - currentTemperature;
+
+        // Check if the temperature is significantly higher than setpoint
+        if (temperatureError > threshold)
         {
-            openValve(); // Deschide valva pentru a crește temperatura
+            closeValve();
+            Serial.println("Closing valve due to high temperature...");
         }
+        // Check if the temperature is significantly lower than setpoint
+        else if (temperatureError < -threshold)
+        {
+            openValve();
+            Serial.println("Opening valve due to low temperature...");
+        }
+        // Use PID output for fine control
         else
         {
-            closeValve(); // Închide valva pentru a scădea temperatura
+            if (valveOutput > pidUpperTrigger)
+            {
+                closeValve();
+            }
+            else if (valveOutput < pidLowerTrigger)
+            {
+                openValve();
+            }
         }
 
-        previousTemperature = currentTemperature; // Actualizează temperatura precedentă
+        previousTemperature = currentTemperature;
     }
 
-    // Pentru debugging
-    Serial.printlnf("Current Temp: %f, Previous Temp: %f, Temp Difference: %f, Valve Output: %f", currentTemperature, previousTemperature, temperatureDifference, valveOutput);
+    Serial.printlnf("Current Temp: %.2f, Setpoint: %.2f, Temp Error: %.2f, Valve Output: %.2f",
+                    currentTemperature, setpoint, temperatureDifference, valveOutput);
 }

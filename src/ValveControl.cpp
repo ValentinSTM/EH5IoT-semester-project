@@ -1,61 +1,76 @@
 // ValveControl.cpp
+
 #include "ValveControl.h"
-#include "Particle.h"
+#include "application.h" // Include Particle specific functions
 
-// Define the pins for valve control
-const int pinValveOpen = D0;  // Example pin for opening the valve
-const int pinValveClose = D1; // Example pin for closing the valve
+const int pinValveOpen = D6;                             // Valve opening pin
+const int pinValveClose = D7;                            // Valve closing pin
+unsigned long fullOpenTime = 0;                          // Valve opening time in milliseconds (ms)
+const unsigned long maxValveOpenTime = 8500 * 15;        // Total time required for full opening (425 ms)
+const unsigned long minValveOpenTime = 8500 * 15 * 0.05; // 5% of the total time required for full opening (425 ms)
+unsigned long lastValveActionTime = 0;                   // Time of the last action on the valve (open/close) in milliseconds (ms)
 
-// Variable to store calibration data
-unsigned long fullOpenTime = 0;
-
-void setupValveControl() {
-    pinMode(pinValveOpen, OUTPUT);
-    pinMode(pinValveClose, OUTPUT);
+// Valve control pin initialization function
+void setupValveControl()
+{
+    pinMode(pinValveOpen, OUTPUT);  // Set the opening valve pin as output
+    pinMode(pinValveClose, OUTPUT); // Set the closing valve pin as output
 }
 
-void openValve() {
-    digitalWrite(pinValveOpen, HIGH);
-    digitalWrite(pinValveClose, LOW);
-    delay(8500 * 15); // Delay for full 8.5mm stroke
-    digitalWrite(pinValveOpen, LOW);
+// Valve opening function
+void openValve()
+{
+    if (millis() - lastValveActionTime >= 15000) // 15 seconds delay between valve actions
+    {
+        digitalWrite(pinValveOpen, HIGH);   // Open the valve
+        digitalWrite(pinValveClose, LOW);   // Stop the valve
+        Serial.println("Opening valve..."); // Print to the serial monitor
+        lastValveActionTime = millis();     // Update the last valve action time
+        fullOpenTime += 15000;              // Update the valve opening time with 15 seconds
+    }
 }
 
-void closeValve() {
-    digitalWrite(pinValveClose, HIGH);
-    digitalWrite(pinValveOpen, LOW);
-    delay(8500 * 15); // Delay for full 8.5mm stroke
-    digitalWrite(pinValveClose, LOW);
+// Valve closing function
+void closeValve()
+{
+    if (millis() - lastValveActionTime >= 15000 && fullOpenTime > minValveOpenTime) // 15 seconds delay between valve actions and the valve is open more than 5%
+    {
+        digitalWrite(pinValveClose, HIGH);  // Close the valve
+        digitalWrite(pinValveOpen, LOW);    // Stop the valve
+        Serial.println("Closing valve..."); // Print to the serial monitor
+        lastValveActionTime = millis();     // Update the last valve action time
+        fullOpenTime -= 15000;              // Update the closing time
+    }
 }
 
-void manualValveSetting() {
-    // Implement manual valve setting logic here
+// Valve stop function
+void stopValve()
+{
+    digitalWrite(pinValveOpen, LOW);  // Stop the valve
+    digitalWrite(pinValveClose, LOW); // Stop the valve
+    Serial.println("Stop valve...");  // Print to the serial monitor
 }
 
-void calibrateValve() {
-    closeValve();
-    unsigned long startTime = millis();
-    openValve();
-    fullOpenTime = millis() - startTime;
+// Valve calibration function
+void calibrateValveOnStartup()
+{
+
+    openValve();             // Open the valve to 100% opening at startup
+    delay(maxValveOpenTime); // Delay for full opening
+    stopValve();             // Stop the valve
+
+    closeValve();                               // Close the valve to 5% opening at startup (anti freeze)
+    delay(maxValveOpenTime - minValveOpenTime); // Delay for full closing minus 5% opening time (anti freeze)
+    stopValve();                                // Stop the valve
+
+    fullOpenTime = minValveOpenTime; // Set the valve to 5% opening at startup (anti freeze)
 }
-void initializeValvePosition() {
-    // Inițializează valva în poziție deschisă
-    openValve();
-}
 
-void controlValveWithPID(double pidOutput) {
-    // Assuming pidOutput is between 0 (fully closed) and 100 (fully open)
-    unsigned long targetTime = (fullOpenTime * pidOutput) / 100;
-
-    // Start with the valve in the open position
-    openValve(); 
-
-    // If the target position is less open than the current fully open position,
-    // close the valve for the necessary time to reach the desired position.
-    if (targetTime < fullOpenTime) {
-        digitalWrite(pinValveClose, HIGH);
-        digitalWrite(pinValveOpen, LOW);
-        delay(fullOpenTime - targetTime); // Close the valve to reach the target position
-        digitalWrite(pinValveClose, LOW); // Stop the valve
+// Valve control anti freeze function ensuring that the valve is open at least 5%
+void ensureAntiFreeze()
+{
+    if (fullOpenTime < minValveOpenTime) // If the valve is open less than 5%
+    {
+        openValve(); // Open the valve to 5%½ to prevent freezing of the water in the radiator and pipes in the winter season (anti freeze)
     }
 }

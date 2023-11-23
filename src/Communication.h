@@ -7,4 +7,4 @@
 // Function to publish temperature data to Particle cloud
 void publishTemperature(float temperature);
 
-#endif
+#endif /* COMMUNICATION_H */

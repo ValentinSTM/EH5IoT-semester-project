@@ -1,7 +1,7 @@
 // RTDTable.cpp
 #include "RTDTable.h"
 
-// Define the RTD table with temperature-resistance values
+// Define the RTD table with temperature-resistance values (PT500 table from Kamstrup A/S)
 const RtdValue rtdTable[] = {
     {0, 500.000},
     {1, 501.954},
@@ -108,4 +108,4 @@ const RtdValue rtdTable[] = {
 };
 
 // Calculate the number of elements in the table
-const int rtdTableSize = sizeof(rtdTable) / sizeof(rtdTable[0]);
+const int rtdTableSize = sizeof(rtdTable) / sizeof(rtdTable[0]); // Size of the RTD table (number of elements in the table)
