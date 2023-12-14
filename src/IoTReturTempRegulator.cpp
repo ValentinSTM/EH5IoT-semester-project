@@ -21,6 +21,7 @@
 #include "ValveControl.h"       // Include the ValveControl library
 #include "PIDController.h"      // Include the PIDController library
 #include "ValvePIDController.h" // Include the ValvePIDController library
+#include "ForecastTemp.h"       // Include the ForecastTemp library
 
 double setpoint = 25; // Define the identifier 'setpoint'
 
@@ -42,12 +43,18 @@ PIDController pidController(Kp, Ki, Kd); // Create a PIDController object with t
 std::deque<float> resistanceSamples; // Queue of resistance samples for moving average
 float sumOfSamples = 0;              // Sum of resistance samples for moving average
 
+unsigned long lastForecastTime = 0;
+const unsigned long ForecastInterval = 60000; // 60 seconds in miliseconds
+
 void setup()
 {
   // Set the analog pin as an input pin for the ADC (Analog to Digital Converter) to read the sensor data from the PT500 RTD sensor (resistance)
   pinMode(ANALOG_PIN, INPUT);
 
   Serial.begin(9600); // Initialize the Serial monitor
+
+  // Setup the weather API
+  setupWeatherApi();
 
   // Setup valve control
   setupValveControl();
@@ -109,6 +116,19 @@ void loop()
     else
     {
       Serial.println("Valve action: hold"); // Hold the valve in the current position
+    }
+  }
+
+  if (millis() - lastForecastTime >= ForecastInterval) // If the weather API data is read
+  {
+    lastForecastTime = millis();
+    readWeatherData();                                                                                                                       // Read the weather API data
+    String weatherDataFormatted = String::format("Weather forecast received, currentTime: %d, currentTemp %lf C", currentTime, currentTemp); // Format the weather API data
+    Serial.println(weatherDataFormatted);                                                                                                    // Print the weather API data to the serial monitor
+    for (int i = 0; i < 3; i++)
+    {
+      String weatherDataFormatted = String::format("Weather forecast received, hour %d Time: %d, hour %d Temp %lf C", i + 1, hourTime[i], i + 1, hourTemp[i]); // Format the weather API data
+      Serial.println(weatherDataFormatted);                                                                                                                    // Print the weather API data to the serial monitor
     }
   }
 
