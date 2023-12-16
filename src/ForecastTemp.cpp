@@ -1,64 +1,29 @@
 #include "ForecastTemp.h"
+#include "Common.h"
 #include <string>
 
-SerialLogHandler logHandler;
-const char *WEATHER_EVENT_NAME = "GetWeatherData";
-int currentTime;
-double currentTemp;
-int hourTime[3];
-double hourTemp[3];
-
-void subscriptionHandler(const char *event, const char *data);
-
-// SYSTEM_THREAD(ENABLED);
-
-enum
-{
-    STATE_WAIT_FOR_CONNECTED,
-    STATE_WAIT_TO_PUBLISH,
-    STATE_IDLE
-};
-int state = STATE_WAIT_FOR_CONNECTED;
-unsigned long stateTime;
 
 void setupWeatherApi()
 {
-    // {{{PARTICLE_DEVICE_ID}}}/{{{PARTICLE_EVENT_NAME}}}
-    String subscriptionName = String::format("%s/%s/", System.deviceID().c_str(), WEATHER_EVENT_NAME);
+    String subscriptionName = String::format("%s/%s/", System.deviceID().c_str(), WEATHER_EVENT_NAME);  // {{{PARTICLE_DEVICE_ID}}}/{{{PARTICLE_EVENT_NAME}}}
     Particle.subscribe(subscriptionName, subscriptionHandler, MY_DEVICES);
     Log.info("subscribing to %s", subscriptionName.c_str());
 }
 
 void readWeatherData()
 {
-    // switch (state)
-    // {
-    // case STATE_WAIT_FOR_CONNECTED:
-    //     if (Particle.connected())
-    //     {
-    //         state = STATE_WAIT_TO_PUBLISH;
-    //         stateTime = millis();
-    //     }
-    //     break;
-
-    // case STATE_WAIT_TO_PUBLISH:
-    //     if (millis() - stateTime >= 5000)
-    //     {
-    //         Particle.publish(WEATHER_EVENT_NAME, "", PRIVATE);
-    //         state = STATE_IDLE;
-    //     }
-    //     break;
-
-    // case STATE_IDLE:
-    //     break;
-    // }
-
     if (Particle.connected())
     {
         Particle.publish(WEATHER_EVENT_NAME, "", PRIVATE);
     }
 }
 
+// Function to decode the data
+// Format is the following:
+//  {"current": {"dt":{{current.dt}}, "temp":{{current.temp}}},
+// "hourly":[{"dt":{{hourly.0.dt}},"temp":{{hourly.0.temp}}},
+// {"dt":{{hourly.1.dt}},"temp":{{hourly.1.temp}}},
+// {"dt":{{hourly.2.dt}},"temp":{{hourly.2.temp}}}]}
 void subscriptionHandler(const char *event, const char *data)
 {
     JSONValue outerObj = JSONValue::parseCopy(data);
@@ -72,13 +37,13 @@ void subscriptionHandler(const char *event, const char *data)
             {
                 if (iter2.name() == "dt")
                 {
-                    currentTime = iter2.value().toInt();
-                    Log.info("current dt=%d", iter2.value().toInt());
+                    forecastCurrentTime = iter2.value().toInt();
+                    Log.trace("current dt=%d", iter2.value().toInt());
                 }
                 if (iter2.name() == "temp")
                 {
-                    currentTemp = iter2.value().toDouble();
-                    Log.info("current temp=%lf", iter2.value().toDouble());
+                    forecastCurrentTemp = iter2.value().toDouble();
+                    Log.trace("current temp=%lf", iter2.value().toDouble());
                 }
             }
         }
@@ -87,22 +52,33 @@ void subscriptionHandler(const char *event, const char *data)
             JSONArrayIterator iter2(iter.value());
             for (size_t ii = 0; iter2.next(); ii++)
             {
-                Log.info("hourly array index %u", ii);
+                Log.trace("hourly array index %u", ii);
                 JSONObjectIterator iter3(iter2.value());
                 while (iter3.next())
                 {
                     if (iter3.name() == "dt")
                     {
-                        hourTime[ii] = iter3.value().toInt();
-                        Log.info("dt=%d", iter3.value().toInt());
+                        forecastHourTime[ii] = iter3.value().toInt();
+                        Log.trace("dt=%d", iter3.value().toInt());
                     }
                     if (iter3.name() == "temp")
                     {
-                        hourTemp[ii] = iter3.value().toDouble();
-                        Log.info("temp=%lf", iter3.value().toDouble());
+                        forecastHourTemp[ii] = iter3.value().toDouble();
+                        Log.trace("temp=%lf", iter3.value().toDouble());
                     }
                 }
             }
         }
+    }
+
+    printWeatherData(); // Pretty print the received weather data
+}
+
+void printWeatherData()
+{
+    Log.info("Weather forecast received, currentTime: %d, currentTemp %lf C", forecastCurrentTime, forecastCurrentTemp);                                                                                                    // Print the weather API data to the serial monitor
+    for (int i = 0; i < 3; i++)
+    {
+        Log.info("Weather forecast received, hour %d Time: %d, hour %d Temp %lf C", i + 1, forecastHourTime[i], i + 1, forecastHourTemp[i]);                                                                                                                    // Print the weather API data to the serial monitor
     }
 }
