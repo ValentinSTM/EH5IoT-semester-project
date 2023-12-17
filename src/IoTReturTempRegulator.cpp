@@ -14,7 +14,7 @@
 
 #include "Particle.h" // Include Particle specific functions
 #include "TempSensor.h"
-#include "CollectedDataSend.h"
+#include "CollectData.h"
 #include "RTDTable.h"
 #include "ValveControl.h"
 #include "PIDController.h"
@@ -26,6 +26,10 @@ const double Kp = 5.0;                   // Proportional constant (adjust curren
 const double Ki = 0.5;                   // Integral constant ( adjust past error) (0.1)
 const double Kd = 0.01;                  // Derivative constant (adjust future error)  (0.01)
 PIDController pidController(Kp, Ki, Kd); // Create a PIDController object with the PID constants
+
+// Define collect interval
+unsigned long lastCollectTime = 0;
+const unsigned long collectInterval = 60000; // 60 seconds in miliseconds
 
 // Define publish interval
 unsigned long lastPublishTime = 0;
@@ -66,23 +70,30 @@ void loop()
   Log.info("Current Temp: %.2f, Setpoint: %.2f, Temp Diff: %.2f, Valve Output: %.2f",
            temperature, setpoint, (setpoint - temperature), valveOutput);
 
+  // Collect data for logging
+  if ((millis() - lastCollectTime >= forecastInterval))
+  {
+    lastCollectTime = millis();
+    time32_t now = Time.now();
+    LogData collectedData = {now, temperature, valveOutput};
+    collectData(&collectedData); // Save the data
+  }
+
   // Publish our data
   if ((millis() - lastPublishTime >= publishInterval) && connectToCloud)
   {
     lastPublishTime = millis();
-    String data = String::format("Temperature: %.2f C, Valve Output: %.2f", temperature, valveOutput);
-
-    publishCollectedData(data); // Publish the data to the Particle Cloud
+    sendCollectData(); // Publish the collected data to the Particle Cloud
   }
 
   // Request weather data
   if ((millis() - lastForecastTime >= forecastInterval) && connectToCloud)
-    {
-      lastForecastTime = millis();
-      readWeatherData(); // Read the weather API data
+  {
+    lastForecastTime = millis();
+    readWeatherData(); // Read the weather API data
 
-      updateSetpoint(forecastCurrentTemp); // Update the setpoint based on the current temperature in the latest weather data
-    }
+    updateSetpoint(forecastCurrentTemp); // Update the setpoint based on the current temperature in the latest weather data
+  }
 
   delay(1000); // Delay for 1 second
 }

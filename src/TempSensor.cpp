@@ -36,12 +36,13 @@ float getTempValue()
     int averageAdcValue = (int)(sumOfSamples / noOfSamples);
     float resistance = calculateResistance(averageAdcValue);
     float temperature = interpolateTemperature(resistance);
-    Log.info("Current Resistance: %.2f, temperature %.2f", resistance, temperature);
 
     // Moving average for spikes over longer time periods
     // temperatureSamples.push_back(temperature); // add the resistance to the resistance samples queue for the moving average calculation
     float averaged_temperature = calculateMovingAverage(temperature);
-    Log.info("Averaged temperature: %.2f", averaged_temperature);
+
+    Log.info("Current Resistance: %.2f, temperature %.2f, averaged temperature: %.2f",
+                resistance, temperature, averaged_temperature);
 
     return averaged_temperature;
 }

@@ -17,9 +17,9 @@ public:                                             // Public functions and vari
     double getOutput();                             // Get the PID output (valve output)
 
 private:
+    double m_setpoint; // Define the identifier 'setpoint'
     double m_input;    // Define the identifier 'input'
     double m_output;   // Define the identifier 'output'
-    double m_setpoint; // Define the identifier 'setpoint'
     double Kp, Ki, Kd; // Define the identifiers 'Kp', 'Ki' and 'Kd'
     PID m_pid;         // Define the identifier 'PID' from the PID library
 };
