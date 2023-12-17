@@ -14,15 +14,12 @@
 
 #include "Particle.h" // Include Particle specific functions
 #include "TempSensor.h"
-#include "DataProcessing.h"
-#include "Communication.h"
+#include "CollectedDataSend.h"
 #include "RTDTable.h"
 #include "ValveControl.h"
 #include "PIDController.h"
 #include "ForecastTemp.h"
 #include "Common.h"
-
-double setpoint = 30; // Define the identifier 'setpoint'
 
 // Define PID constants
 const double Kp = 5.0;                   // Proportional constant (adjust current error) (1.0)
@@ -34,10 +31,7 @@ PIDController pidController(Kp, Ki, Kd); // Create a PIDController object with t
 unsigned long lastPublishTime = 0;
 const unsigned long publishInterval = 1800000; // 30 minutes in miliseconds
 
-// int currentSteps = 0;                // Current step in the valve control algorithm
-// const int totalStepsForOpen = 1000;  // Total number of steps to open the valve
-// const int totalStepsForClose = 1000; // Total number of steps to close the valve
-
+// Define forecast interval
 unsigned long lastForecastTime = 0;
 const unsigned long forecastInterval = 60000; // 60 seconds in miliseconds
 
@@ -55,10 +49,6 @@ void setup()
   // Setup PID controller
   pidController.setSetpoint(setpoint); // Setpoint for return temperature (output)
   pidController.begin();               // Initialisering PIDController
-
-  // TODO Delete this
-  // Setup Particle Cloud communication
-  // publishTemperature(); // Publish the temperature to the Particle Cloud
 }
 
 void loop()
@@ -76,44 +66,23 @@ void loop()
   Log.info("Current Temp: %.2f, Setpoint: %.2f, Temp Diff: %.2f, Valve Output: %.2f",
            temperature, setpoint, (setpoint - temperature), valveOutput);
 
-  // Publish the data
-  // Logging and publishing at 30 minute intervals of temperature and PID output to monitor the operation of the return temperature control system
-
-  if (millis() - lastPublishTime >= publishInterval) // If the time since the last publish is greater than the publish interval
+  // Publish our data
+  if ((millis() - lastPublishTime >= publishInterval) && connectToCloud)
   {
-    lastPublishTime = millis();                                                                        // Update the last publish time
-    String data = String::format("Temperature: %.2f C, Valve Output: %.2f", temperature, valveOutput); // Format the data to be published
-    // TODO add outside temperature
-    // TODO change valve data to measure steps done in last period
-    Log.info(data);                                        // Print the data to the serial monitor
-    Particle.publish("temperature_update", data, PRIVATE); // Publish the data to the Particle Cloud
+    lastPublishTime = millis();
+    String data = String::format("Temperature: %.2f C, Valve Output: %.2f", temperature, valveOutput);
 
-    // // Log the valve action based on the PID output and valve specifications
-    // if (valveOutput > pidUpperTrigger) // If the valve output is greater than the upper trigger
-    // {
-    //   Serial.println("Valve action: open"); // Open the valve to increase the flow and effectively use the heat transfer in the room through the radiator
-    // }
-    // else if (valveOutput < pidLowerTrigger) // If the valve output is less than the lower trigger
-    // {
-    //   Serial.println("Valve action: close"); // Close the valve to reduce the flow and effectively use the heat transfer in the room through the radiator
-    // }
-    // else
-    // {
-    //   Serial.println("Valve action: hold"); // Hold the valve in the current position
-    // }
+    publishCollectedData(data); // Publish the data to the Particle Cloud
   }
 
-  if (millis() - lastForecastTime >= forecastInterval) // If the weather API data is read
-  {
-    lastForecastTime = millis();
-    readWeatherData(); // Read the weather API data
+  // Request weather data
+  if ((millis() - lastForecastTime >= forecastInterval) && connectToCloud)
+    {
+      lastForecastTime = millis();
+      readWeatherData(); // Read the weather API data
 
-    // TODO update setpoint based on  Logic for setpoint table in ValvePIDController.h
-  }
+      updateSetpoint(forecastCurrentTemp); // Update the setpoint based on the current temperature in the latest weather data
+    }
 
   delay(1000); // Delay for 1 second
 }
-// Additional Notes:
-// - The SERIAL_BUFFER_SIZE might need to be adjusted based on the requirements of your application.
-// - Make sure to include your RTDTable and PT500Sensor libraries in the src/ directory.
-// - Review and adhere to the guidelines for safely publishing events to the Particle Cloud.

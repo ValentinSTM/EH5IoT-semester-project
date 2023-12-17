@@ -21,9 +21,9 @@ void setupValveControl()
 // Valve opening function
 void openValve()
 {
-    digitalWrite(PIN_VALVE_OPEN, HIGH);  // Open the valve
-    digitalWrite(PIN_VALVE_CLOSE, LOW);  // Stop the valve
-    Log.info("Opening valve..."); // Print to the serial monitor
+    digitalWrite(PIN_VALVE_OPEN, HIGH); // Open the valve
+    digitalWrite(PIN_VALVE_CLOSE, LOW); // Stop the valve
+    Log.info("Opening valve...");       // Print to the serial monitor
 }
 
 // Valve closing function
@@ -31,7 +31,7 @@ void closeValve()
 {
     digitalWrite(PIN_VALVE_CLOSE, HIGH); // Close the valve
     digitalWrite(PIN_VALVE_OPEN, LOW);   // Stop the valve
-    Log.info("Closing valve..."); // Print to the serial monitor
+    Log.info("Closing valve...");        // Print to the serial monitor
 }
 
 // Valve stop function
@@ -39,7 +39,7 @@ void stopValve()
 {
     digitalWrite(PIN_VALVE_OPEN, LOW);  // Stop the valve
     digitalWrite(PIN_VALVE_CLOSE, LOW); // Stop the valve
-    Log.info("Stop valve...");   // Print to the serial monitor
+    Log.info("Stop valve...");          // Print to the serial monitor
 }
 
 void controlValve(unsigned int steps)
@@ -84,11 +84,11 @@ void waitForSteps(int steps)
 void calibrateValveOnStartup()
 {
 
-    if (!developDebug)
+    if (enableCalibration)
     {
         controlValve(100); // Open the valve to maximum
 
-        controlValve(5); // Close the valve down to antefreeze point
+        controlValve(5); // Close the valve down to antifreeze point
     }
 }
 
