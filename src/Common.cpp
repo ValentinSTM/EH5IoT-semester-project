@@ -10,10 +10,7 @@ double setpoint = 30; // Default value for setpoint
 
 const char *WEATHER_EVENT_NAME = "GetWeatherForecast";
 const char *COLLECTED_DATA_EVENT_NAME = "SendCollectedData";
-int forecastCurrentTime;
-double forecastCurrentTemp;
-int forecastHourTime[3];
-double forecastHourTemp[3];
+
 
 /*
 Function to update the setpoint.

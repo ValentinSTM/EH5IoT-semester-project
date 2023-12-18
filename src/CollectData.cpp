@@ -23,6 +23,12 @@ void collectData(LogData *data) // Function to collect data for logging
     }
 }
 
+// Function to encode the data to JSON and send it to Particle cloud
+// Format is the following:
+// {"node":"iot10","deviceId":"{{{PARTICLE_DEVICE_ID}}}",
+// "data":[{"timestamp":{{timestamp1}},"temperature":{{temperature1}},"valveOutput":{{valveOutput1}}},
+// {"timestamp":{{timestamp2}},"temperature":{{temperature2}},"valveOutput":{{valveOutput2}}},
+// {"timestamp":{{timestamp3}},"temperature":{{temperature3}},"valveOutput":{{valveOutput3}}}]}
 void sendCollectData()
 {
     char buffer[1024];
@@ -55,7 +61,8 @@ void sendCollectData()
     publishCollectedData(buffer);
 }
 
-void publishCollectedData(const char *eventData) // Function to publish data to Particle cloud (https://docs.particle.io/reference/device-os/firmware/photon/#particle-publish-)
+// Function to publish data to Particle cloud (https://docs.particle.io/reference/device-os/firmware/photon/#particle-publish-)
+void publishCollectedData(const char *eventData)
 {
     if (Particle.connected())
     {

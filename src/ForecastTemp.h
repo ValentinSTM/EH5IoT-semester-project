@@ -2,5 +2,5 @@
 
 void setupWeatherApi();
 void subscriptionHandler(const char *event, const char *data);
-void readWeatherData();
+void requestWeatherData();
 void printWeatherData();

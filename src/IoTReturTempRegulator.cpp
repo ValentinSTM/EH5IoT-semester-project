@@ -38,6 +38,7 @@ const unsigned long publishInterval = 1800000; // 30 minutes in miliseconds
 // Define forecast interval
 unsigned long lastForecastTime = 0;
 const unsigned long forecastInterval = 60000; // 60 seconds in miliseconds
+const unsigned long forecastIntervalSeconds = 60; // 60 seconds
 
 void setup()
 {
@@ -45,6 +46,8 @@ void setup()
   Log.info("Logging with LOG_LEVEL_INFO");
 
   setupTempSensor();
+
+  forecastedData.resize(FORECAST_DATA_SIZE);
   setupWeatherApi();
 
   setupValveControl();
@@ -90,9 +93,12 @@ void loop()
   if ((millis() - lastForecastTime >= forecastInterval) && connectToCloud)
   {
     lastForecastTime = millis();
-    readWeatherData(); // Read the weather API data
+    requestWeatherData(); // Request to read the weather API data
+  }
 
-    updateSetpoint(forecastCurrentTemp); // Update the setpoint based on the current temperature in the latest weather data
+  if ((unsigned int)Time.now() - currentData.timestamp <= forecastIntervalSeconds) // if the data is new
+  {
+      updateSetpoint(currentData.temperature); // Update the setpoint based on the current temperature in the latest weather data
   }
 
   delay(1000); // Delay for 1 second

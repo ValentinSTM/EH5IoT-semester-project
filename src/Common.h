@@ -14,11 +14,6 @@ extern double setpoint;
 extern const char *WEATHER_EVENT_NAME;
 extern const char *COLLECTED_DATA_EVENT_NAME;
 
-extern int forecastCurrentTime;
-extern double forecastCurrentTemp;
-extern int forecastHourTime[3];
-extern double forecastHourTemp[3];
-
 struct LogData
 {
     time32_t timestamp;
@@ -27,6 +22,15 @@ struct LogData
 };
 const size_t LOGGED_DATA_SIZE = 3;
 extern std::deque<LogData> logData;
+
+struct ForecastData
+{
+    time32_t timestamp;
+    double temperature;
+};
+const size_t FORECAST_DATA_SIZE = 3;
+extern ForecastData currentData;
+extern std::deque<ForecastData> forecastedData;
 
 void updateSetpoint(double temperature);
 

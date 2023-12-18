@@ -2,6 +2,9 @@
 #include "Common.h"
 #include <string>
 
+ForecastData currentData;
+std::deque<ForecastData> forecastedData;
+
 void setupWeatherApi()
 {
     String subscriptionName = String::format("%s/%s/", System.deviceID().c_str(), WEATHER_EVENT_NAME); // {{{PARTICLE_DEVICE_ID}}}/{{{PARTICLE_EVENT_NAME}}}
@@ -9,7 +12,7 @@ void setupWeatherApi()
     Log.info("Subscribing to event %s", subscriptionName.c_str());
 }
 
-void readWeatherData()
+void requestWeatherData()
 {
     if (Particle.connected())
     {
@@ -28,6 +31,9 @@ void subscriptionHandler(const char *event, const char *data)
 {
     JSONValue outerObj = JSONValue::parseCopy(data);
     JSONObjectIterator iter(outerObj);
+
+    Log.info("Event (%s) data received", WEATHER_EVENT_NAME);
+
     while (iter.next())
     {
         if (iter.name() == "current")
@@ -37,13 +43,11 @@ void subscriptionHandler(const char *event, const char *data)
             {
                 if (iter2.name() == "dt")
                 {
-                    forecastCurrentTime = iter2.value().toInt();
-                    Log.trace("current dt=%d", iter2.value().toInt());
+                    currentData.timestamp = iter2.value().toInt();
                 }
                 if (iter2.name() == "temp")
                 {
-                    forecastCurrentTemp = iter2.value().toDouble();
-                    Log.trace("current temp=%lf", iter2.value().toDouble());
+                    currentData.temperature = iter2.value().toDouble();
                 }
             }
         }
@@ -52,19 +56,16 @@ void subscriptionHandler(const char *event, const char *data)
             JSONArrayIterator iter2(iter.value());
             for (size_t ii = 0; iter2.next(); ii++)
             {
-                Log.trace("hourly array index %u", ii);
                 JSONObjectIterator iter3(iter2.value());
                 while (iter3.next())
                 {
                     if (iter3.name() == "dt")
                     {
-                        forecastHourTime[ii] = iter3.value().toInt();
-                        Log.trace("dt=%d", iter3.value().toInt());
+                        forecastedData[ii].timestamp = iter3.value().toInt();
                     }
                     if (iter3.name() == "temp")
                     {
-                        forecastHourTemp[ii] = iter3.value().toDouble();
-                        Log.trace("temp=%lf", iter3.value().toDouble());
+                        forecastedData[ii].temperature = iter3.value().toDouble();
                     }
                 }
             }
@@ -76,10 +77,9 @@ void subscriptionHandler(const char *event, const char *data)
 
 void printWeatherData()
 {
-    Log.info("Event (%s) data received", WEATHER_EVENT_NAME);
-    Log.info("Weather forecast, currentTime: %d, currentTemp %lf C", forecastCurrentTime, forecastCurrentTemp); // Print the weather API data to the serial monitor
-    for (int i = 0; i < 3; i++)
+    Log.info("Weather forecast, currentTime: %ld, currentTemp %lf C", currentData.timestamp, currentData.temperature); // Print the weather API data to the serial monitor
+    for (unsigned int i = 0; i < forecastedData.size(); i++)
     {
-        Log.info("Weather forecast , hour %d Time: %d, hour %d Temp %lf C", i + 1, forecastHourTime[i], i + 1, forecastHourTemp[i]); // Print the weather API data to the serial monitor
+        Log.info("Weather forecast, hour %d Time: %ld, hour %d Temp %lf C", i + 1, forecastedData[i].timestamp, i + 1, forecastedData[i].temperature); // Print the weather API data to the serial monitor
     }
 }
