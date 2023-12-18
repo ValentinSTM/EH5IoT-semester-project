@@ -20,8 +20,8 @@ Og er returtemperatur fra din bolig under 30°C, får du en bonus." (www.kredslo
 Fjernvarme is a district heating system that supplies heat to multiple households from a centralized source. The return temperature refers to the temperature of the water sent back from homes to the heating plant.
 
 ### Project Implementation
-This system will be implemented using Particle Photon2 boards, leveraging IoT technology to gather data from weather forecasts and change setpoint after that. 
-Logic for setpoint is dynamic depending on the outside temperature.
+This system was implemented using one Particle Photon2 board, leveraging IoT technology to gather data from weather forecasts webhook and changing temperature setpoint after those data as seen in the tabel. 
+Logic for temperature setpoint is dynamic depending on the outside temperature.
 
 | Temperature Condition   | Set Point  |
 |-------------------------|------------|
@@ -30,7 +30,7 @@ Logic for setpoint is dynamic depending on the outside temperature.
 | Normal temperature (> 3°C)       | 30°C       |
 
 The system will collect data from a temperature sensor RTD PT500 Kamstrup mounted on return pipe .
-Data collected from the temperature sensor will by used in an PID controller (Proportional, Integral, Derivative ) able to control the dynamic system. 
+Data collected from the temperature sensor will by used in an PID controller (Proportional, Integral, Derivative ) able to control the dynamic system, by giving som resultat a parameter to adjust the position of an electro valve. 
 - P = Proportional - Kp = Proportional constant (adjust current error)
 - I = Integral - Ki = Integral constant ( adjust past error)
 - D = Derivative - Kd = Derivative constant (adjust future error)
