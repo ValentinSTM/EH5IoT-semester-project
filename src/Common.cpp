@@ -6,7 +6,8 @@ bool enableCalibration = false;              // Set to true in production. Calib
 bool connectToCloud = false;                 // Set to true in production. Prevent sending too many requests to the cloud during development
 SerialLogHandler logHandler(LOG_LEVEL_INFO); // During development INFO, change to LOG_LEVEL_WARN or LOG_LEVEL_ERROR for production
 
-double setpoint = 30; // Default value for setpoint
+double setpoint = 30;                          // Default value for setpoint
+double valveOutput = VALVE_ANTIFREEZE_SETTING; // This should be a safe defult value for the program to begin with
 
 const char *WEATHER_EVENT_NAME = "GetWeatherForecast";
 const char *COLLECTED_DATA_EVENT_NAME = "SendCollectedData";

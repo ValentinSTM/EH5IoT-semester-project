@@ -40,7 +40,7 @@ void sendCollectData()
     writer.name("node").value("iot10"); // Name of the node. Hardcoded, as there is no function to get it from the device
     writer.name("deviceId").value(System.deviceID().c_str());
 
-    writer.name("data").beginArray(); // Start of the array containing the data samples
+    writer.name("data").beginArray(); // Start of the array containing the data samples, as JSON objects
 
     for (size_t i = 0; i < logData.size(); i++)
     {

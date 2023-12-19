@@ -3,7 +3,7 @@
 #include "RTDTable.h" // Include the RTD Table module header file
 #include <algorithm>  // Add this to include the standard algorithms library
 
-std::deque<float> temperatureSamples; // Queue of resistance samples for moving average
+std::deque<float> temperatureSamples; // Queue of temperature samples for moving average calculation
 
 void setupTempSensor()
 {
@@ -38,16 +38,15 @@ float getTempValue()
     float temperature = interpolateTemperature(resistance);
 
     // Moving average for spikes over longer time periods
-    // temperatureSamples.push_back(temperature); // add the resistance to the resistance samples queue for the moving average calculation
     float averaged_temperature = calculateMovingAverage(temperature);
 
     Log.info("Current Resistance: %.2f, temperature %.2f, averaged temperature: %.2f",
-                resistance, temperature, averaged_temperature);
+             resistance, temperature, averaged_temperature);
 
     return averaged_temperature;
 }
 
-// Function to calculate the moving average of resistance samples
+// Function to calculate the moving average of temperature samples
 float calculateMovingAverage(float newTempSample)
 {
     static float sumOfSamples = 0;

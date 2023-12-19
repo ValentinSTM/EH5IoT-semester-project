@@ -8,13 +8,13 @@
 
 class PIDController // Create a PIDController class
 {
-public:                                             // Public functions and variables
+public:
     PIDController(double Kp, double Ki, double Kd); // Constructor for the PIDController class with the PID constants as arguments
     void begin();                                   // Start PID control and set mode to AUTOMATIC (PID::AUTOMATIC)
-    void setSetpoint(double setpoint);              // Set the setpoint for the PID controller to compute the output based on the input and setpoint values
-    void setInput(double input);                    // Set the input for the PID controller to compute the output based on the input and setpoint values
+    void setSetpoint(double setpoint);              // Set the setpoint for the PID controller to be used in computing the output
+    void setInput(double input);                    // Set the input for the PID controller  to be used in computing the output
     bool compute();                                 // Compute the PID output based on the input and setpoint values
-    double getOutput();                             // Get the PID output (valve output)
+    double getOutput();                             // Get the PID output
 
 private:
     double m_setpoint; // Define the identifier 'setpoint'

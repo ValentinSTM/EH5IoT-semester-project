@@ -42,7 +42,6 @@ unsigned long lastForecastTime = 0;
 const unsigned long forecastInterval = 60000;     // 60 seconds in miliseconds
 const unsigned long forecastIntervalSeconds = 60; // 60 seconds
 
-double valveOutput = 0.0; // Valve output
 os_mutex_t valveMutex;
 
 void setup()
@@ -80,7 +79,7 @@ void loop()
   valveOutput = pidController.getOutput();
   os_mutex_unlock(valveMutex);
   Log.info("Current Temp: %.2f, Setpoint: %.2f, Temp Diff: %.2f, Valve Output: %.2f",
-         temperature, setpoint, (setpoint - temperature), valveOutput);
+           temperature, setpoint, (setpoint - temperature), valveOutput);
 
   // controlValve(valveOutput); // Control valve with output from PID controller, when not using a thread
 

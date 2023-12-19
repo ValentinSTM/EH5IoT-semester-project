@@ -100,17 +100,16 @@ void waitForSteps(int steps)
 // Valve calibration function
 void calibrateValveOnStartup()
 {
-
     if (enableCalibration)
     {
-        controlValve(100); // Open the valve to maximum
+        controlValve(VALVE_MAX_SETTING); // Open the valve to maximum
 
-        controlValve(5); // Close the valve down to antifreeze point
+        controlValve(VALVE_ANTIFREEZE_SETTING); // Close the valve down to antifreeze point
     }
 }
 
 // Valve control anti freeze function ensuring that the valve is open at least 5%
 void ensureAntiFreeze()
 {
-    controlValve(5);
+    controlValve(VALVE_ANTIFREEZE_SETTING);
 }

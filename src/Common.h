@@ -13,6 +13,9 @@ extern double setpoint;
 extern double valveOutput;
 extern os_mutex_t valveMutex;
 
+const unsigned int VALVE_MAX_SETTING = 100;
+const unsigned int VALVE_ANTIFREEZE_SETTING = 5;
+
 extern const char *WEATHER_EVENT_NAME;
 extern const char *COLLECTED_DATA_EVENT_NAME;
 

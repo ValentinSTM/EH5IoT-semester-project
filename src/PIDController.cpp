@@ -10,30 +10,30 @@ PIDController::PIDController(double Kp, double Ki, double Kd)
 {
 }
 
-void PIDController::begin() // Start PID control and set mode to AUTOMATIC (PID::AUTOMATIC)
+void PIDController::begin()
 {
     m_pid.SetOutputLimits(0, 100); // Set the output limits for the PID controller (valve output between 0 and 100%)
     m_pid.SetMode(PID::AUTOMATIC); // Set PID mode to AUTOMATIC
 }
 
-void PIDController::setSetpoint(double setpoint) // Set the setpoint for the PID controller to compute the output based on the input and setpoint values
+void PIDController::setSetpoint(double setpoint) // Set the setpoint for the PID controller to be used in computing the output
 {
-    m_setpoint = setpoint; // Set the setpoint
+    m_setpoint = setpoint;
     Log.info("Setpoint set to: %.2f", m_setpoint);
 }
 
-void PIDController::setInput(double input) // Set the input for the PID controller to compute the output based on the input and setpoint values
+void PIDController::setInput(double input) // Set the input for the PID controller to be used in computing the output
 {
-    m_input = input; // Set the input
+    m_input = input;
     Log.info("Input set to: %.2f", m_input);
 }
 
 bool PIDController::compute() // Compute the PID output based on the input and setpoint values
 {
-    return m_pid.Compute(); // Compute the PID output based on the input and setpoint values
+    return m_pid.Compute();
 }
 
 double PIDController::getOutput() // Get the PID output
 {
-    return m_output; // Return the PID output
+    return m_output;
 }

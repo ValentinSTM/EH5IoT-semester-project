@@ -11,13 +11,11 @@ const float ADC_MAX_VALUE = 4095.0;          // 12-bit ADC resolution (4095) (2^
 const float SERIES_RESISTOR = 596;           // Series resistor value
 const size_t MOVING_AVERAGE_SAMPLE_SIZE = 5; // Number of samples for averaging (moving average)
 
-static std::deque<float> resistanceSamples; // Queue of resistance samples for moving average
-
 void setupTempSensor();
 int readTempSensor();                                   // Function to read the analog value from the sensor
 float calculateResistance(int adcValue);                // Function to convert the analog value to resistance
 float getTempValue();                                   // Function to get the temperature from the PT500 sensor, after being calculated and averaged
-float calculateMovingAverage(float newTempSample);      // Function to calculate the moving average of resistance samples
+float calculateMovingAverage(float newTempSample);      // Function to calculate the moving average of temperature samples
 float interpolateTemperature(float measuredResistance); // Function to interpolate temperature from resistance using the RTD table
 
 #endif /* TEMP_SENSOR_H */
