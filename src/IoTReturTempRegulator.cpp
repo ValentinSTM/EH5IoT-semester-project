@@ -21,6 +21,8 @@
 #include "ForecastTemp.h"
 #include "Common.h"
 
+SYSTEM_THREAD(ENABLED); // Enable multi-threading
+
 // Define PID constants
 const double Kp = 5.0;                   // Proportional constant (adjust current error) (1.0)
 const double Ki = 0.5;                   // Integral constant ( adjust past error) (0.1)
@@ -37,13 +39,18 @@ const unsigned long publishInterval = 1800000; // 30 minutes in miliseconds
 
 // Define forecast interval
 unsigned long lastForecastTime = 0;
-const unsigned long forecastInterval = 60000; // 60 seconds in miliseconds
+const unsigned long forecastInterval = 60000;     // 60 seconds in miliseconds
 const unsigned long forecastIntervalSeconds = 60; // 60 seconds
+
+double valveOutput = 0.0; // Valve output
+os_mutex_t valveMutex;
 
 void setup()
 {
   Serial.begin(9600); // Initialize the Serial monitor
   Log.info("Logging with LOG_LEVEL_INFO");
+
+  os_mutex_create(&valveMutex);
 
   setupTempSensor();
 
@@ -52,6 +59,7 @@ void setup()
 
   setupValveControl();
   calibrateValveOnStartup(); // Calibrate valve on startup (open fully and close)
+  new Thread("ValveControlThread", valveControlThread);
 
   // Setup PID controller
   pidController.setSetpoint(setpoint); // Setpoint for return temperature (output)
@@ -68,10 +76,13 @@ void loop()
   pidController.compute();                     // Compute PID output
 
   // Control valve with PID output
-  double valveOutput = pidController.getOutput();
-  controlValve(valveOutput); // Control valve with output from PID controller
+  os_mutex_lock(valveMutex);
+  valveOutput = pidController.getOutput();
+  os_mutex_unlock(valveMutex);
   Log.info("Current Temp: %.2f, Setpoint: %.2f, Temp Diff: %.2f, Valve Output: %.2f",
-           temperature, setpoint, (setpoint - temperature), valveOutput);
+         temperature, setpoint, (setpoint - temperature), valveOutput);
+
+  // controlValve(valveOutput); // Control valve with output from PID controller, when not using a thread
 
   // Collect data for logging
   if ((millis() - lastCollectTime >= forecastInterval))
@@ -98,7 +109,7 @@ void loop()
 
   if ((unsigned int)Time.now() - currentData.timestamp <= forecastIntervalSeconds) // if the data is new
   {
-      updateSetpoint(currentData.temperature); // Update the setpoint based on the current temperature in the latest weather data
+    updateSetpoint(currentData.temperature); // Update the setpoint based on the current temperature in the latest weather data
   }
 
   delay(1000); // Delay for 1 second

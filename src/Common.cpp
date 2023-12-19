@@ -11,7 +11,6 @@ double setpoint = 30; // Default value for setpoint
 const char *WEATHER_EVENT_NAME = "GetWeatherForecast";
 const char *COLLECTED_DATA_EVENT_NAME = "SendCollectedData";
 
-
 /*
 Function to update the setpoint.
 Logic for setpoint is dynamic depending on the outside temperature.

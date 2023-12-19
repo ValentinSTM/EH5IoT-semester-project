@@ -42,9 +42,22 @@ void stopValve()
     Log.info("Stop valve...");          // Print to the serial monitor
 }
 
+void valveControlThread(void)
+{
+    while (true)
+    {
+        os_mutex_lock(valveMutex);
+        double localValveOutput = valveOutput;
+        os_mutex_unlock(valveMutex);
+        controlValve((unsigned int)localValveOutput);
+    }
+}
+
 void controlValve(unsigned int steps)
 {
     int noOfSteps = steps - currentStep;
+    Log.info("Step difference to move valve: %d", noOfSteps);
+
     if (noOfSteps > 0)
     {
         openValve();
@@ -56,6 +69,10 @@ void controlValve(unsigned int steps)
         closeValve();
         waitForSteps(noOfSteps);
         stopValve();
+    }
+    else
+    {
+        delay(1000); // keep the tread alive with normal delay funtion, we don't really care about drift
     }
 }
 
