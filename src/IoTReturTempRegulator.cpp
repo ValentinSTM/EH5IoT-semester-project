@@ -31,23 +31,22 @@ PIDController pidController(Kp, Ki, Kd); // Create a PIDController object with t
 
 // Define collect interval
 unsigned long lastCollectTime = 0;
-const unsigned long collectInterval = 60000; // 60 seconds in miliseconds
+const unsigned long collectInterval = 3600; // 1 hour in seconds
 
 // Define publish interval
 unsigned long lastPublishTime = 0;
-const unsigned long publishInterval = 1800000; // 30 minutes in miliseconds
+const unsigned long publishInterval = 10800; // 3 hours in seconds
 
 // Define forecast interval
 unsigned long lastForecastTime = 0;
-const unsigned long forecastInterval = 60000;     // 60 seconds in miliseconds
-const unsigned long forecastIntervalSeconds = 60; // 60 seconds
+const unsigned long forecastInterval = 10800; // 3 hours in seconds
 
 os_mutex_t valveMutex;
 
 void setup()
 {
-  Serial.begin(9600); // Initialize the Serial monitor
-  Log.info("Logging with LOG_LEVEL_INFO");
+  Serial.begin(9600);                      // Initialize the Serial monitor
+  Log.info("Logging with LOG_LEVEL_INFO"); // Particle log level is INFO
 
   os_mutex_create(&valveMutex);
 
@@ -84,31 +83,31 @@ void loop()
   // controlValve(valveOutput); // Control valve with output from PID controller, when not using a thread
 
   // Collect data for logging
-  if ((millis() - lastCollectTime >= forecastInterval))
+  if ((Time.now() - lastCollectTime >= collectInterval))
   {
-    lastCollectTime = millis();
+    lastCollectTime = Time.now();
     time32_t now = Time.now();
     LogData collectedData = {now, temperature, valveOutput};
     collectData(&collectedData); // Save the data
   }
 
   // Publish our data
-  if ((millis() - lastPublishTime >= publishInterval) && connectToCloud)
+  if ((Time.now() - lastPublishTime >= publishInterval) && connectToCloud)
   {
-    lastPublishTime = millis();
+    lastPublishTime = Time.now();
     sendCollectData(); // Publish the collected data to the Particle Cloud
   }
 
   // Request weather data
-  if ((millis() - lastForecastTime >= forecastInterval) && connectToCloud)
+  if ((Time.now() - lastForecastTime >= forecastInterval) && connectToCloud)
   {
-    lastForecastTime = millis();
+    lastForecastTime = Time.now();
     requestWeatherData(); // Request to read the weather API data
   }
 
-  if ((unsigned int)Time.now() - currentData.timestamp <= forecastIntervalSeconds) // if the data is new
+  if ((unsigned int)Time.now() - currentData.timestamp <= forecastInterval) // if the data is new, use received timestamp from forecast data
   {
-    updateSetpoint(currentData.temperature); // Update the setpoint based on the current temperature in the latest weather data
+    updateSetpoint(forecastedData[2].temperature); // Update the setpoint based on the current temperature in the latest weather data, use the 3rd hour forecast
   }
 
   delay(1000); // Delay for 1 second
