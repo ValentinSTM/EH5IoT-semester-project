@@ -71,13 +71,14 @@ void loop()
 
   // PID controller
   pidController.setInput((double)temperature); // Current temperature from PT500 sensor as input for PID controller
+  pidController.setSetpoint(setpoint);         // Setpoint for return temperature (output)
   pidController.compute();                     // Compute PID output
 
   // Control valve with PID output
   os_mutex_lock(valveMutex);
   valveOutput = pidController.getOutput();
   os_mutex_unlock(valveMutex);
-  Log.info("Current Temp: %.2f, Setpoint: %.2f, Temp Diff: %.2f, Valve Output: %.2f",
+  Log.info("Input: %.2f, Setpoint: %.2f, Temp Diff: %.2f, Valve Output: %.2f",
            temperature, setpoint, (setpoint - temperature), valveOutput);
 
   // controlValve(valveOutput); // Control valve with output from PID controller, when not using a thread

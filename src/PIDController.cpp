@@ -19,13 +19,13 @@ void PIDController::begin()
 void PIDController::setSetpoint(double setpoint) // Set the setpoint for the PID controller to be used in computing the output
 {
     m_setpoint = setpoint;
-    Log.info("Setpoint set to: %.2f", m_setpoint);
+    Log.trace("Setpoint set to: %.2f", m_setpoint);
 }
 
 void PIDController::setInput(double input) // Set the input for the PID controller to be used in computing the output
 {
     m_input = input;
-    Log.info("Input set to: %.2f", m_input);
+    Log.trace("Input set to: %.2f", m_input);
 }
 
 bool PIDController::compute() // Compute the PID output based on the input and setpoint values
