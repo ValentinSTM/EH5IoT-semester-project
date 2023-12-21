@@ -59,6 +59,7 @@ void sendCollectData()
     writer.endObject(); // End of the JSON object
 
     publishCollectedData(buffer);
+    printCollectedData();
 }
 
 // Function to publish data to Particle cloud (https://docs.particle.io/reference/device-os/firmware/photon/#particle-publish-)
@@ -66,7 +67,15 @@ void publishCollectedData(const char *eventData)
 {
     if (Particle.connected())
     {
-        Log.trace("Event (%s) data sent: %s", COLLECTED_DATA_EVENT_NAME, eventData);
+        Log.info("Event (%s) data sent: %s", COLLECTED_DATA_EVENT_NAME, eventData);
         Particle.publish(COLLECTED_DATA_EVENT_NAME, eventData, PRIVATE);
+    }
+}
+
+void printCollectedData()
+{
+    for (unsigned int i = 0; i < logData.size(); i++)
+    {
+        Log.info("Collected data, timestamp %ld, temperature %lf C valveOutput %lf", logData[i].timestamp, logData[i].temperature, logData[i].valveOutput);
     }
 }

@@ -8,5 +8,6 @@
 void collectData(LogData *logData);
 void sendCollectData();
 void publishCollectedData(const char *eventData);
+void printCollectedData();
 
 #endif /* COLLECT_DATA_H */
